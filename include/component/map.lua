@@ -1,6 +1,7 @@
 local map = {
     map_data = {},
     map_batch = {},
+    objects = {},
     load_map = require("load_map")
     }
 map.__index = map
@@ -8,6 +9,12 @@ map.__index = map
 function map:give()
     self.id = "map"
     return setmetatable({}, map)
+end
+
+map.destroy = function(self)
+    map.map_data = {}
+    map.map_batch = {}
+    map.objects = {}
 end
 
 function map.entityFromData(i)
@@ -24,7 +31,24 @@ end
 function map:new(name)
     map.map_data = map.load_map(name)
     map.map_batch = map.makeBatch(map.map_data)
-    print(map.map_batch.batch)
+    map.objects = map.getObjects(map.map_data)
+end
+
+function map.getObjects(map_table)
+    local obj_list = {}
+    for _, layer in ipairs(map_table.map.layers) do
+        if layer.type == "objectgroup" then
+            for i, object in ipairs(layer.objects) do
+                obj_list[i] = {
+                    name = object.name,
+                    x = object.x,
+                    y = object.y-object.height,
+                    properties = object.properties
+                }
+            end
+        end
+    end
+    return obj_list
 end
 
 function map.makeBatch(map_table)
@@ -46,7 +70,13 @@ function map.makeBatch(map_table)
         )
     end
     local z = {}
+    local count = 0
     for i, layer in ipairs(data.layers) do
+        if layer.type == "tilelayer" then
+            count = count + 1
+        else
+            break
+        end
         batch[i] = love.graphics.newSpriteBatch(tilesets[1], layer.height*layer.width, "static")
         z[i] = layer.properties.z
         for j = 1, #layer.data do

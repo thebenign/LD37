@@ -8,8 +8,12 @@ function sfx.give(entity)
     return setmetatable({sound_list = {}}, sfx)
 end
 
-function sfx:new(source)
-    self.sound_list[source] = sfx.sound_table[source]
+function sfx:new(...)
+    local source = {...}
+    for i = 1, #source do
+        self.sound_list[source[i]] = sfx.sound_table[source[i]]
+    end
+    
 end
 
 function sfx:play(source, looping)

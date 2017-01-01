@@ -17,5 +17,9 @@ function position:set(x, y)
     self.y = y
 end
 
+function position:get()
+    return self.x, self.y
+end
+
 
 return position

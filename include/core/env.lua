@@ -2,7 +2,7 @@ local env = {
     t = 1/60,
     dt = 0,
     alpha = 0,
-    debug = false
+    debug = false,
 }
 
 require("slam")
@@ -15,6 +15,6 @@ end
 
 love.keyboard.setKeyRepeat(true)
 love.keyboard.setTextInput(false)
-love.graphics.setDefaultFilter("linear", "linear")
+love.graphics.setDefaultFilter("nearest")
 
 return env

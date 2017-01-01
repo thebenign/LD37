@@ -1,6 +1,7 @@
 local sprite = {
     zenum = 0,
     zlist = {},
+    hsl = require("hsl"),
     image_table = require("image"),
     batch_table = require("map"),
     camera = require("camera"),
@@ -8,10 +9,16 @@ local sprite = {
     }
 sprite.__index = sprite
 
+function sprite.reset()
+    sprite.zenum = 0
+    sprite.zlist = {}
+end
+
 function sprite.give(entity)
     local s = {
         img = sprite.image_table.null,
         color = {255,255,255,255},
+        blend = "alpha",
         scale = 1, 
         rot = 0, 
         origin_x = 0, 
@@ -23,10 +30,6 @@ function sprite.give(entity)
 end
 
 function sprite:setMap(batch)
-    for k, v in pairs(sprite.batch_table.map_batch) do
-        print(k, v)
-    end
-    
     for i, batch in ipairs(sprite.batch_table.map_batch.batch) do
         local z = sprite.batch_table.map_batch.z[i]
         local s = {
@@ -141,7 +144,10 @@ function sprite:update()
 end
 
 function sprite:destroy()
-    sprite.remove(self.sprite.id)
+    if self.sprite.id then
+        sprite.remove(self.sprite.id)
+    end
+    
 end
 
 function sprite.draw()
@@ -149,13 +155,15 @@ function sprite.draw()
     for i = sprite.zenum, 1, -1 do
         entity = sprite.zlist[i]
         if entity.sprite.visible then
-            love.graphics.setColor(255,255,255,255)
+            --love.graphics.setColor(255,255,255,255)
+            love.graphics.setColor(entity.sprite.color)
+            love.graphics.setBlendMode(entity.sprite.blend)
             if entity.sprite.quad then
                 love.graphics.draw(
                     entity.sprite.img,
                     entity.sprite.quad,
-                    math.floor(entity.position.x-(entity.position.relative and sprite.camera.x or 0)),
-                    math.floor(entity.position.y-(entity.position.relative and sprite.camera.y or 0)), 
+                    (entity.position.x-(entity.position.relative and sprite.camera.x or 0)),
+                    (entity.position.y-(entity.position.relative and sprite.camera.y or 0)), 
                     entity.sprite.rot, 
                     entity.sprite.scale, 
                     entity.sprite.scale, 
@@ -165,8 +173,8 @@ function sprite.draw()
             else
                 love.graphics.draw(
                     entity.sprite.img,
-                    math.floor(entity.position.x-(entity.position.relative and sprite.camera.x or 0)),
-                    math.floor(entity.position.y-(entity.position.relative and sprite.camera.y or 0)), 
+                    (entity.position.x-(entity.position.relative and sprite.camera.x or 0)),
+                    (entity.position.y-(entity.position.relative and sprite.camera.y or 0)), 
                     entity.sprite.rot, 
                     entity.sprite.scale, 
                     entity.sprite.scale, 

@@ -21,8 +21,8 @@ end
 
 function camera.update()
     if camera.entity then
-        local dist = camera.trig.distance(camera.entity.position.x, camera.entity.position.y, camera.x+camera.env.window_w/2, camera.y+camera.env.window_h/2)
-        local dir = camera.trig.theta(camera.entity.position.x, camera.entity.position.y, camera.x+camera.env.window_w/2, camera.y+camera.env.window_h/2)
+        local dist = camera.trig.distance(camera.entity.position.x, camera.entity.position.y, camera.x+camera.env.window_w/4, camera.y+camera.env.window_h/4)
+        local dir = camera.trig.theta(camera.entity.position.x, camera.entity.position.y, camera.x+camera.env.window_w/4, camera.y+camera.env.window_h/4)
         local nx, ny = camera.x, camera.y
         dist = (dist > .25) and dist or 0
         if dist > camera.follow_distance then

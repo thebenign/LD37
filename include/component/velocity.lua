@@ -21,6 +21,12 @@ function velocity:add(dir, mag)
     
 end
 
+function velocity:set(dir, mag)
+    self.dir = dir
+    self.mag = mag
+end
+
+--function velocity:tween(x, y, time)
 function velocity:update()
         self.position.x, self.position.y = velocity.trig.translate(self.position.x, self.position.y, self.velocity.dir, self.velocity.mag)
         self.velocity.mag = self.velocity.mag - ((self.velocity.mag > self.velocity.fric) and self.velocity.fric or 0)

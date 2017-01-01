@@ -17,4 +17,8 @@ function trig.translate(x, y, dir, mag)
     return x + trig.cos(dir)*mag, y + trig.sin(dir)*mag
 end
 
+function trig.sign(x)
+    return x>0 and 1 or x<0 and -1 or 0
+end
+
 return trig

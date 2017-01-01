@@ -9,6 +9,7 @@
 local entity = setmetatable({
     enum = 0,
     list = {},
+    global = {}
     }, {__call = function(t, name) return t.new(name) end})
 entity.__index = entity
 
@@ -43,6 +44,19 @@ function entity:destroy()
     self.d_flag = true
 end
 
+function entity:clearEverything()
+    local obj = self
+    entity.list = {}
+    entity.enum = 0
+    for k, component in pairs(entity.component) do
+        if component.reset then
+            component.reset()
+        end
+    end
+    entity.new("map_entity")
+end
+
+        
 function entity:has(...)
     local args = {...}
     for i, v in ipairs(args) do
@@ -57,10 +71,23 @@ function entity:setID(id)
     self.id = id
 end
 
+function entity:setGlobal(key, val)
+    entity.global[key] = val
+end
+
+function entity:getGlobal(key)
+    return entity.global[key]
+end
+
+function entity:clearGlobals()
+    entity.global = {}
+end
+
 function entity.update()
     local ent, comp
     for i = entity.enum, 1, -1 do
         ent = entity.list[i]
+        if not ent then break end
         for c = 1, #entity.list[i].comp_list do
             comp = ent[ent.comp_list[c]]
             comp.update(ent)
@@ -82,7 +109,6 @@ end
 function entity.draw()
     entity.component.sprite.draw()
     entity.component.gui.draw()
-    
     entity.component.collider.draw()
 end
 

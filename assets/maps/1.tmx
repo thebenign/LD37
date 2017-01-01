@@ -1,7 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="14" height="14" tilewidth="32" tileheight="32" nextobjectid="1">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="14" height="14" tilewidth="32" tileheight="32" nextobjectid="25">
  <tileset firstgid="1" name="aynNDpb" tilewidth="32" tileheight="32" tilecount="32" columns="8">
   <image source="aynNDpb.png" width="256" height="128"/>
+ </tileset>
+ <tileset firstgid="33" name="entities" tilewidth="32" tileheight="32" tilecount="9" columns="0">
+  <tile id="0">
+   <image width="32" height="32" source="13 - Ic7yDv4.png"/>
+  </tile>
+  <tile id="1">
+   <image width="32" height="32" source="01 - KjpH0ta.png"/>
+  </tile>
+  <tile id="5">
+   <image width="32" height="32" source="trap-closed.png"/>
+  </tile>
+  <tile id="6">
+   <image width="32" height="32" source="trap-open.png"/>
+  </tile>
+  <tile id="7">
+   <image width="16" height="16" source="ice_small.png"/>
+  </tile>
+  <tile id="8">
+   <image width="32" height="32" source="window.png"/>
+  </tile>
+  <tile id="9">
+   <image width="32" height="32" source="fire.png"/>
+  </tile>
+  <tile id="10">
+   <image width="32" height="32" source="warn-tile.png"/>
+  </tile>
+  <tile id="11">
+   <image width="32" height="32" source="player.png"/>
+  </tile>
  </tileset>
  <layer name="Tile Layer 2" width="14" height="14">
   <properties>
@@ -10,12 +39,12 @@
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,14,14,14,14,14,14,14,14,14,0,14,14,0,
-0,14,14,14,14,14,14,14,14,14,0,14,14,0,
-0,14,14,14,14,14,14,23,14,25,0,14,14,0,
-0,14,14,14,14,14,14,14,14,14,0,14,14,0,
+0,14,14,14,14,14,14,14,14,14,14,14,14,0,
+0,14,14,14,14,14,14,23,14,14,0,14,14,0,
+0,14,14,14,14,14,14,14,14,14,14,14,14,0,
 0,14,14,14,14,14,14,0,14,14,0,14,14,0,
 0,14,14,14,14,14,14,0,14,14,0,14,14,0,
-0,0,0,0,24,24,14,0,0,0,0,0,0,0,
+0,0,0,0,14,14,14,0,0,0,0,0,0,0,
 0,14,14,0,14,14,14,14,14,14,0,14,14,0,
 0,14,14,14,14,14,14,14,14,14,0,14,14,0,
 0,14,14,14,14,14,0,14,14,14,0,14,14,0,
@@ -32,12 +61,12 @@
   <data encoding="csv">
 4,2,2,2,2,2,2,11,2,2,11,2,2,3,
 5,0,0,0,0,0,0,5,0,0,5,0,0,5,
-5,0,0,0,0,0,0,19,0,0,5,0,0,5,
-12,20,0,0,0,0,0,0,0,0,5,0,0,5,
-5,0,0,0,0,0,0,21,0,0,5,0,0,5,
+5,0,0,0,0,0,0,19,0,0,19,0,0,5,
+12,20,0,0,0,0,0,0,0,0,0,0,0,5,
+5,0,0,0,0,0,0,21,0,0,21,0,0,5,
 5,0,0,0,0,0,0,5,0,0,5,0,0,5,
 5,0,0,0,0,0,0,5,0,0,5,0,0,5,
-12,2,2,3,0,0,18,6,2,2,10,2,2,13,
+12,2,2,3,0,0,0,8,2,2,10,2,2,13,
 5,0,0,5,0,0,0,0,0,0,5,0,0,5,
 5,0,0,19,0,0,0,0,0,0,5,0,0,5,
 5,0,0,0,0,0,16,0,1,0,5,0,0,5,
@@ -46,4 +75,24 @@
 8,2,2,2,2,2,2,2,2,2,6,2,2,7
 </data>
  </layer>
+ <objectgroup name="Object Layer 1">
+  <object id="2" name="guy" gid="33" x="384" y="128" width="32" height="32"/>
+  <object id="3" name="button" gid="34" x="224" y="128" width="32" height="32">
+   <properties>
+    <property name="link" type="int" value="1"/>
+   </properties>
+  </object>
+  <object id="5" name="trap" gid="39" x="320" y="128" width="32" height="32">
+   <properties>
+    <property name="link" type="int" value="1"/>
+   </properties>
+  </object>
+  <object id="15" name="ice" gid="40" x="135" y="151" width="16" height="16"/>
+  <object id="17" name="hud" gid="41" x="0" y="32" width="32" height="32">
+   <properties>
+    <property name="ignore_position" type="bool" value="true"/>
+   </properties>
+  </object>
+  <object id="24" name="player" gid="44" x="160" y="384" width="32" height="32"/>
+ </objectgroup>
 </map>

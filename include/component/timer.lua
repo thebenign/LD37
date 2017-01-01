@@ -15,7 +15,7 @@ function timer.give(entity)
             run = true
         }, timer
     )
-    timer.list[timer.n] = t
+    --timer.list[timer.n] = t
     return t
     
 end

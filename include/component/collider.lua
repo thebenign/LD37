@@ -2,7 +2,7 @@ local collider = {
     list = {},
     cell = {},
     enum = 0,
-    size = 150,
+    size = 448,
     resolvers = {
         r2r = require("r2r"),
         c2r = require("c2r"),
@@ -17,6 +17,12 @@ local collider = {
 collider.__index = collider
 collider.w = math.ceil(collider.world[1]/collider.size)
 
+function collider.reset()
+    collider.list = {}
+    collider.cell = {}
+    collider.enum = 0
+end
+
 function collider:give()
     collider.enum = collider.enum + 1
     collider.list[collider.enum] = self
@@ -28,7 +34,13 @@ function collider:give()
             n = 0,
             dynamic = true,
             collides_with = {},
-            collider_call = {}
+            stopped_by = {},
+            collider_call = {},
+            collider_call_off = {},
+            last = {},
+            offset_x = 0,
+            offset_y = 0,
+            active = true,
             }, collider)
 end
 
@@ -36,7 +48,14 @@ function collider:collidesWith(...)
     local arg = {...}
     self.has_resolvers = true
     for i = 1, #arg do
-        self.collides_with[arg[i]] = collider.resolvers.none
+        self.collides_with[arg[i]] = true
+    end
+end
+
+function collider:stoppedBy(...)
+    local arg = {...}
+    for i = 1, #arg do
+        self.stopped_by[arg[i]] = true
     end
 end
 
@@ -45,9 +64,29 @@ function collider:setAction(with, resolver)
 end
 
 function collider:setFunctionOn(with, func)
-    self.collider_call[with] = func
+    local arg
+    if type(with) == "table" then
+        arg = with
+    else
+        arg = {with}
+    end
+    for i = 1, #arg do
+        self.collider_call[arg[i]] = func
+    end
 end
-    
+
+function collider:setFunctionOff(with, func)
+    local arg
+    if type(with) == "table" then
+        arg = with
+    else
+        arg = {with}
+    end
+    for i = 1, #arg do
+        self.collider_call_off[arg[i]] = func
+    end
+end
+
 function collider:setType(t, ...)
     local arg = {...}
     if t == "rectangle" then
@@ -72,14 +111,23 @@ function collider:setType(t, ...)
     self.t = t
 end
 
+function collider:setOffset(x,y)
+    self.offset_x = x
+    self.offset_y = y
+end
+
 function collider:remove()
     local gcell, ecell
     for i = 1, self.collider.n do
         ecell = self.collider.cells
         gcell = collider.cell[ecell.l[i]]
-        collider.cell[self.collider.cells.l[i]].l[self.collider.cells.n[i]] = 
-        collider.cell[self.collider.cells.l[i]].l[collider.cell[self.collider.cells.l[i]].n]
-        collider.cell[self.collider.cells.l[i]].n = collider.cell[self.collider.cells.l[i]].n - 1
+        
+        gcell.l[ecell.n[i]] = gcell.l[gcell.n]
+        gcell.n = gcell.n - 1
+        
+        --collider.cell[self.collider.cells.l[i]].l[self.collider.cells.n[i]] = 
+        --collider.cell[self.collider.cells.l[i]].l[collider.cell[self.collider.cells.l[i]].n]
+        --collider.cell[self.collider.cells.l[i]].n = collider.cell[self.collider.cells.l[i]].n - 1
     end
 end
 
@@ -101,13 +149,14 @@ function collider.addCircle(self)
 end
 
 function collider:addRectangle()
-    return collider.updateCells(self, self.position.x, self.position.y, self.collider.w, self.collider.h)
+    return collider.updateCells(self, self.position.x+self.collider.offset_x, self.position.y+self.collider.offset_y, self.collider.w, self.collider.h)
 end
 
 function collider.addMap()
     local map_obj, map_data
     map_data = collider.map.map_data.map
     for _, layer in ipairs(map_data.layers) do
+        if layer.type ~= "tilelayer" then break end
         for i = 1, layer.width*layer.height do
             if layer.data[i] > 0 and layer.properties["collide"] then
                 map_obj = collider.map.entityFromData(i-1)
@@ -156,39 +205,55 @@ function collider:update()
     if self.collider.dynamic then
         collider.remove(self)
         collider.add(self)
+        --print(self.id, self.collider.cells.l[1], self.collider.cells.n[1])
     end
-    local entity, hit
-    for i = 1, self.collider.n do
-        for j = 1, collider.cell[self.collider.cells.l[i]].n do
-            entity = collider.cell[self.collider.cells.l[i]].l[j]
-            if self ~= entity and self.collider.has_resolvers and self.collider.collides_with[entity.id] then
-                hit = collider.resolvers.c2r(
-                    {x = self.position.x, y = self.position.y, r = self.collider.r},
-                    {x = entity.position.x, y = entity.position.y, w = entity.collider.w, h = entity.collider.h}
-                )
-                if hit then
-                    if hit.delta.x then
-                        self.position.x = self.position.x + hit.delta.x
-                        local norm = math.rad(hit.normal.x * 180)
-                        self.velocity.dir = 2 * norm - math.pi - self.velocity.dir
+    local entity, hit, neighbors
+    --for i = 1, self.collider.n do
+    for i = 1, collider.enum do
+        --for j = 1, collider.cell[self.collider.cells.l[i]].n do
+        --for j = 1, collider.cell[1].n do
+            --entity = collider.cell[1].l[j]
+            entity = collider.list[i]
+            if self ~= entity and self.collider.collides_with[entity.id] then
+                hit = collider.resolvers.r2r(self, entity)
+                if hit and entity.collider.active then
+                    if self.collider.stopped_by[entity.id] then
+                        if hit.dx then
+                            self.position.x = self.position.x - hit.dx
+                        end
+                        if hit.dy then
+                            self.position.y = self.position.y - hit.dy
+                        end
                     end
-                    if hit.delta.y then
-                        self.position.y = self.position.y + hit.delta.y
-                        local norm = math.rad(hit.normal.y * 90)
-                        self.velocity.dir = 2 * norm - math.pi - self.velocity.dir
-                    end
-                    --self.velocity.mag = self.velocity.mag*.75
                     if self.collider.collider_call[entity.id] then
-                        self.collider.collider_call[entity.id](self)
+                        local is_repeat = false
+                        if self.collider.last[entity] then is_repeat = true end
+                        self.collider.collider_call[entity.id](self, entity, hit, is_repeat)
+                    end
+                    self.collider.last[entity] = true
+                else
+                    if self.collider.last[entity] and self.collider.collider_call_off[entity.id] then
+                        self.collider.collider_call_off[entity.id](self, entity)
+                        self.collider.last[entity] = nil
                     end
                 end
             end
-            --if hit then break end
-        end
+        --end
         
     end
-    
     ENUM = collider.enum
+end
+
+function collider:getNeighbors()
+    local neighbors = {}
+    local count = 0
+    for i = 1, self.n do
+        for j, item in ipairs(collider.cell[self.cells.l[i]]) do
+            count = count + 1
+            neighbors[count] = item
+        end
+    end
+    return neighbors
 end
 
 function collider:destroy()
@@ -200,7 +265,7 @@ function collider:destroy()
 end
 
 function collider.draw()
-    love.graphics.setColor(255,255,255,150)
+    love.graphics.setColor(0,0,0,255)
     local cam_x = math.floor(collider.cam.x)
     local cam_y = math.floor(collider.cam.y)
     local floor = math.floor
