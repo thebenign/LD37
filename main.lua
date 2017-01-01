@@ -10,7 +10,7 @@ function love.load()
     
     if arg[#arg] == "-debug" then require("mobdebug").start() end
     entity("map_entity")
-    world.startMusic(2)
+    world.startMusic(1)
 end
 
 function love.update(dt)
